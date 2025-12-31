@@ -28,15 +28,19 @@ function RecommendModal({
   const [isCustom, setIsCustom] = useState(false)
   const [customValue, setCustomValue] = useState(lastCustomMinutes)
   const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPreferenceMode, setPreferenceMode] = useState(false)
+  const [isSavingPreference, setIsSavingPreference] = useState(false)
 
   useEffect(() => {
     if (!isOpen) return
-    const usesPreset = ESTIMATE_PRESETS.includes(initialMinutes as (typeof ESTIMATE_PRESETS)[number])
+    const usesPreset = ESTIMATE_PRESETS.includes(
+      initialMinutes as (typeof ESTIMATE_PRESETS)[number],
+    )
     setSelectedMinutes(initialMinutes)
     setIsCustom(!usesPreset)
     setCustomValue(lastCustomMinutes)
     setError(null)
+    setPreferenceMode(false)
   }, [isOpen, initialMinutes, lastCustomMinutes])
 
   const isValidCustom = useMemo(() => {
@@ -50,7 +54,7 @@ function RecommendModal({
 
   const displayMinutes = isCustom ? customValue : selectedMinutes
 
-  const handleConfirm = async () => {
+  const handleSavePreference = async () => {
     if (!isCustom && !selectedMinutes) {
       setError('请选择时间偏好')
       return
@@ -59,14 +63,15 @@ function RecommendModal({
       setError('自定义时间需在 1-9999 之间')
       return
     }
-    setIsSubmitting(true)
+    setIsSavingPreference(true)
     try {
       await onConfirm(displayMinutes, isCustom ? customValue : undefined)
-      onClose()
+      setPreferenceMode(false)
+      setError(null)
     } catch (err) {
       setError((err as Error).message)
     } finally {
-      setIsSubmitting(false)
+      setIsSavingPreference(false)
     }
   }
 
@@ -105,7 +110,6 @@ function RecommendModal({
             className="primary-button"
             type="button"
             onClick={() => onStartTask(recommendation.top!.id)}
-            disabled={isSubmitting}
           >
             Start
           </button>
@@ -132,7 +136,6 @@ function RecommendModal({
                 className="secondary-button"
                 type="button"
                 onClick={() => onStartTask(task.id)}
-                disabled={isSubmitting}
               >
                 Start
               </button>
@@ -142,6 +145,21 @@ function RecommendModal({
         {recommendation.message ? (
           <p className="hint-text">{recommendation.message}</p>
         ) : null}
+        <div className="modal-actions">
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => {
+              setPreferenceMode(true)
+              setError(null)
+            }}
+          >
+            调整时间偏好
+          </button>
+          <button className="link-button" type="button" onClick={onClose}>
+            关闭
+          </button>
+        </div>
       </div>
     )
   }
@@ -149,64 +167,74 @@ function RecommendModal({
   return (
     <div className="modal-backdrop">
       <div className="modal-card recommend-modal">
-        <h3>选择时间偏好</h3>
-        <p>记住你最近一次的时间窗口，下一次一键进行时更快进入状态。</p>
-        <div className="time-options">
-          {ESTIMATE_PRESETS.map((minutes) => (
-            <button
-              key={minutes}
-              type="button"
-              className={
-                !isCustom && selectedMinutes === minutes
-                  ? 'chip-button is-active'
-                  : 'chip-button'
-              }
-              onClick={() => {
-                setIsCustom(false)
-                setSelectedMinutes(minutes)
-                setError(null)
-              }}
-              disabled={isSubmitting}
-            >
-              {minutes} 分
-            </button>
-          ))}
-          <div className="custom-time-input">
-            <label>
-              自定义（1-9999）
-              <input
-                type="number"
-                min={MIN_CUSTOM}
-                max={MAX_CUSTOM}
-                value={customValue}
-                onFocus={() => setIsCustom(true)}
-                onChange={(event) => {
-                  setIsCustom(true)
-                  setCustomValue(Number(event.target.value))
+        <h3>一键进行</h3>
+        {isPreferenceMode ? (
+          <>
+            <p>调整时间偏好（系统会记住最近一次选择）。</p>
+            <div className="time-options">
+              {ESTIMATE_PRESETS.map((minutes) => (
+                <button
+                  key={minutes}
+                  type="button"
+                  className={
+                    !isCustom && selectedMinutes === minutes
+                      ? 'chip-button is-active'
+                      : 'chip-button'
+                  }
+                  onClick={() => {
+                    setIsCustom(false)
+                    setSelectedMinutes(minutes)
+                    setError(null)
+                  }}
+                >
+                  {minutes} 分
+                </button>
+              ))}
+              <div className="custom-time-input">
+                <label>
+                  自定义（1-9999）
+                  <input
+                    type="number"
+                    min={MIN_CUSTOM}
+                    max={MAX_CUSTOM}
+                    value={customValue}
+                    onFocus={() => setIsCustom(true)}
+                    onChange={(event) => {
+                      setIsCustom(true)
+                      setCustomValue(Number(event.target.value))
+                      setError(null)
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+            {error ? <p className="error-text">{error}</p> : null}
+            <div className="modal-actions">
+              <button
+                className="primary-button"
+                type="button"
+                onClick={handleSavePreference}
+                disabled={isSavingPreference}
+              >
+                {isSavingPreference
+                  ? '保存中…'
+                  : `保存（${displayMinutes} 分钟）`}
+              </button>
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => {
+                  setPreferenceMode(false)
                   setError(null)
                 }}
-                disabled={isSubmitting}
-              />
-            </label>
-          </div>
-        </div>
-        <div className="modal-actions">
-          <button
-            className="primary-button"
-            type="button"
-            onClick={handleConfirm}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? '保存中…' : `确认（${displayMinutes} 分钟）`}
-          </button>
-          <button className="secondary-button" type="button" onClick={onClose}>
-            关闭
-          </button>
-        </div>
-        {error ? <p className="error-text">{error}</p> : null}
-        <hr />
-        <h4>推荐结果</h4>
-        {renderRecommendation()}
+              >
+                返回推荐
+              </button>
+            </div>
+          </>
+        ) : (
+          renderRecommendation()
+        )}
       </div>
     </div>
   )
