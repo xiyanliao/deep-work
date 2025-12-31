@@ -1,4 +1,4 @@
-# Deep List · Journalist Mode
+# Deep Work · Journalist Mode
 
 一个离线优先的个人深度清单工具，目标是在移动端做到“一键 Start 深度 → Finish 写热机线索 → Home 秒入下一次”。项目现已覆盖任务生命周期、Sessions 记录、推荐、PWA、备份等核心能力，可以直接部署到任何 HTTPS 域并安装到手机上使用。
 
