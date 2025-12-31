@@ -19,7 +19,8 @@ function HomePage() {
   const [statusText, setStatusText] = useState<string | null>(null)
   const [doneOpen, setDoneOpen] = useState(false)
   const [isRecommendOpen, setRecommendOpen] = useState(false)
-  const [recommendation, setRecommendation] = useState<ReturnType<typeof recommendTasks> | null>(null)
+  const [recommendation, setRecommendation] =
+    useState<ReturnType<typeof recommendTasks> | null>(null)
   const [preferenceMessage, setPreferenceMessage] = useState<string | null>(null)
   const [backupMessage, setBackupMessage] = useState<string | null>(null)
   const [backupError, setBackupError] = useState<string | null>(null)
@@ -58,11 +59,13 @@ function HomePage() {
   }, [refreshTasks])
 
   useEffect(() => {
-    if (isRecommendOpen) {
-      const result = recommendTasks(tasks, timePreference)
-      setRecommendation(result)
+    if (!tasks.length) {
+      setRecommendation(null)
+      return
     }
-  }, [isRecommendOpen, tasks, timePreference])
+    const result = recommendTasks(tasks, timePreference)
+    setRecommendation(result)
+  }, [tasks, timePreference])
 
   const handleMarkDone = async (taskId: string) => {
     try {
@@ -94,8 +97,6 @@ function HomePage() {
   }
 
   const handleRecommendOpen = () => {
-    const result = recommendTasks(tasks, timePreference)
-    setRecommendation(result)
     setRecommendOpen(true)
   }
 
@@ -145,27 +146,45 @@ function HomePage() {
       </p>
       {todayError ? <p className="error-text">统计失败：{todayError}</p> : null}
 
-      <div className="home-actions">
-        <Link className="primary-button" to="/focus">
-          演示 Focus Screen
-        </Link>
-        <Link className="secondary-button" to="/task/demo-task">
-          查看任务详情壳
-        </Link>
-      </div>
-
       <div className="page-card">
-        <h2>一键进行 · 时间偏好</h2>
-        <p>选择时间窗口后，推荐系统会记住你的偏好，下次空档可秒入。</p>
+        <h2>一键进行</h2>
+        {recommendation && recommendation.top ? (
+          <>
+            <p>
+              当前推荐：<strong>{recommendation.top.title || '未命名任务'}</strong>
+              {recommendation.top.remaining_minutes !== null
+                ? ` · 预计剩余 ${recommendation.top.remaining_minutes} 分钟`
+                : ' · 未设置 estimate'}
+            </p>
+            {recommendation.message ? (
+              <p className="hint-text">{recommendation.message}</p>
+            ) : null}
+          </>
+        ) : (
+          <p>暂时没有可推荐的任务，请先添加或恢复任务。</p>
+        )}
         <button
           className="primary-button"
           type="button"
           onClick={handleRecommendOpen}
           disabled={isPreferenceLoading}
         >
+          立即一键进行
+        </button>
+      </div>
+
+      <div className="page-card">
+        <h2>时间偏好设置</h2>
+        <p>选择时间窗口后，推荐系统会记住你的偏好，下次空档可秒入。</p>
+        <button
+          className="secondary-button"
+          type="button"
+          onClick={handleRecommendOpen}
+          disabled={isPreferenceLoading}
+        >
           {isPreferenceLoading
             ? '读取偏好中…'
-            : `当前偏好：${timePreference} 分钟 · 点击修改`}
+            : `当前偏好：${timePreference} 分钟（点击修改）`}
         </button>
         {preferenceMessage ? <p className="hint-text">{preferenceMessage}</p> : null}
         {preferenceError ? <p className="error-text">{preferenceError}</p> : null}
