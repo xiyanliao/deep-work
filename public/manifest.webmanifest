@@ -1,0 +1,23 @@
+{
+  "name": "Deep List · Journalist Mode",
+  "short_name": "Deep List",
+  "description": "一键秒入深度的 Journalist Mode 清单，随时 Start / Finish。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f6fb",
+  "theme_color": "#0fdc6d",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
