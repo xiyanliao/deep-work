@@ -13,13 +13,6 @@ const navLinks = [
 function App() {
   return (
     <div className="app-shell">
-      <header className="app-header">
-        <div>
-          <p className="app-title">Deep Work · Journalist Mode</p>
-          <p className="app-tagline">M0 shell · routes ready for upcoming work</p>
-        </div>
-      </header>
-
       <main className="app-main">
         <Routes>
           <Route path="/" element={<HomePage />} />
