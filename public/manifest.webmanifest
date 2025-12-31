@@ -1,6 +1,6 @@
 {
-  "name": "Deep List · Journalist Mode",
-  "short_name": "Deep List",
+  "name": "Deep Work · Journalist Mode",
+  "short_name": "Deep Work",
   "description": "一键秒入深度的 Journalist Mode 清单，随时 Start / Finish。",
   "start_url": "/",
   "display": "standalone",

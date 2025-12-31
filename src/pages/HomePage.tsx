@@ -12,12 +12,6 @@ import { recommendTasks } from '../utils/recommendation'
 import { useTodayDeepMinutes } from '../hooks/useTodayDeepMinutes'
 import { exportBackup, importBackup } from '../utils/backup'
 
-const featureBullets = [
-  '任务池、Start、Finish、FinishModal 将在 M1~M3 逐步成型',
-  'Sessions、推荐算法、PWA 仍在路上，本页只是暖场',
-  '此壳可在手机与桌面上安全打开，便于验收后续增量',
-]
-
 function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -144,21 +138,12 @@ function HomePage() {
   return (
     <section className="page home-page">
       <p className="page-kicker">Home</p>
-      <h1>Deep List · Journalist Mode</h1>
+      <h1>Deep Work · Journalist Mode</h1>
       <p className="page-lead">
         今日累计深度：
         {isTodayLoading ? '计算中…' : `${todayMinutes} 分钟`}
       </p>
       {todayError ? <p className="error-text">统计失败：{todayError}</p> : null}
-
-      <div className="page-card">
-        <h2>施工说明</h2>
-        <ul>
-          {featureBullets.map((text) => (
-            <li key={text}>{text}</li>
-          ))}
-        </ul>
-      </div>
 
       <div className="home-actions">
         <Link className="primary-button" to="/focus">

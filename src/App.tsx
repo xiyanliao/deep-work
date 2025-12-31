@@ -14,7 +14,7 @@ function App() {
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <p className="app-title">Deep List · Journalist Mode</p>
+          <p className="app-title">Deep Work · Journalist Mode</p>
           <p className="app-tagline">M0 shell · routes ready for upcoming work</p>
         </div>
       </header>
