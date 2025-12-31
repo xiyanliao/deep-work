@@ -2,11 +2,12 @@ import { NavLink, Route, Routes } from 'react-router-dom'
 import FocusPage from './pages/FocusPage'
 import HomePage from './pages/HomePage'
 import TaskDetailPage from './pages/TaskDetailPage'
+import SettingsPage from './pages/SettingsPage'
 
 const navLinks = [
   { path: '/', label: 'Home' },
   { path: '/focus', label: 'Focus' },
-  { path: '/task/demo-task', label: 'Task' },
+  { path: '/settings', label: 'Settings' },
 ] as const
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/focus" element={<FocusPage />} />
           <Route path="/task/:taskId" element={<TaskDetailPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       </main>
 
