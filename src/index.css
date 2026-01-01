@@ -304,23 +304,32 @@ body {
   flex: 1;
 }
 
-.task-card__header {
+.task-card__head {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
 }
 
 .task-card__actions {
   display: flex;
   gap: 0.4rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
-.task-card__title {
-  color: #0f172a;
+.task-card__title-button {
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  padding: 0.6rem 0.9rem;
+  background: white;
   font-weight: 600;
+  color: #0f172a;
   text-decoration: none;
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+  text-align: center;
 }
 
 .task-card__meta {

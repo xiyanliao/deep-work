@@ -116,7 +116,6 @@ function HomePage() {
 
       <div className="page-card">
         <h2>创建新任务</h2>
-        <p>仅需填写标题即可。估时稍后可在 Task Detail 中补充。</p>
         <NewTaskForm onCreated={refreshTasks} />
       </div>
 

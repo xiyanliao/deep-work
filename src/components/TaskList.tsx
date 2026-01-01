@@ -79,32 +79,32 @@ function TaskList({
         return (
           <li key={task.id} className="task-card">
             <div className="task-card__content">
-              <div className="task-card__header">
-                <Link to={`/task/${task.id}`} className="task-card__title">
+              <div className="task-card__head">
+                <Link to={`/task/${task.id}`} className="task-card__title-button">
                   {task.title || '未命名任务'}
                 </Link>
                 <div className="task-card__actions">
-                {onStart && ['cold', 'warm'].includes(task.state) ? (
-                  <button
-                    className="primary-button primary-button--small"
-                    type="button"
-                    disabled={isStarting || focusingTaskId === task.id}
-                    onClick={() => onStart(task.id)}
-                  >
-                    Start
-                  </button>
-                ) : null}
-                {onMarkDone && task.state !== 'focusing' ? (
-                  <button
-                    className="ghost-button"
-                    type="button"
-                    onClick={() => onMarkDone(task.id)}
-                  >
-                    标记 Done
-                  </button>
-                ) : null}
+                  {onStart && ['cold', 'warm'].includes(task.state) ? (
+                    <button
+                      className="primary-button primary-button--small"
+                      type="button"
+                      disabled={isStarting || focusingTaskId === task.id}
+                      onClick={() => onStart(task.id)}
+                    >
+                      Start
+                    </button>
+                  ) : null}
+                  {onMarkDone && task.state !== 'focusing' ? (
+                    <button
+                      className="ghost-button"
+                      type="button"
+                      onClick={() => onMarkDone(task.id)}
+                    >
+                      标记 Done
+                    </button>
+                  ) : null}
+                </div>
               </div>
-            </div>
               <p className="task-card__meta">
                 <span className="state-pill">{TASK_STATE_COPY[task.state]}</span>
                 <span>{progressInfo.text}</span>
@@ -120,9 +120,9 @@ function TaskList({
                   </span>
                 </div>
               ) : null}
-            {getWarmSubtitle(task) ? (
-              <p className="task-card__subtitle">{getWarmSubtitle(task)}</p>
-            ) : null}
+              {getWarmSubtitle(task) ? (
+                <p className="task-card__subtitle">{getWarmSubtitle(task)}</p>
+              ) : null}
             </div>
           </li>
         )
