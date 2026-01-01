@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ESTIMATE_PRESETS, TASK_STATE_COPY } from '../constants/tasks'
+import {
+  ESTIMATE_PRESETS,
+  TASK_STATE_COPY,
+  type TaskWithRemaining,
+} from '../constants/tasks'
 import type { RecommendationResult } from '../utils/recommendation'
 
 interface RecommendModalProps {
@@ -14,6 +18,14 @@ interface RecommendModalProps {
 
 const MIN_CUSTOM = 1
 const MAX_CUSTOM = 9999
+
+const getPillClass = (state: TaskWithRemaining['state']) => {
+  const classes = ['state-pill', 'state-pill--outline']
+  if (state === 'warm') {
+    classes.push('state-pill--warm')
+  }
+  return classes.join(' ')
+}
 
 function RecommendModal({
   isOpen,
@@ -97,7 +109,7 @@ function RecommendModal({
               : '未设置估时'}
           </p>
           <div className="recommend-card__chips">
-            <span className="state-pill state-pill--outline">
+            <span className={getPillClass(recommendation.top.state)}>
               {TASK_STATE_COPY[recommendation.top.state]}
             </span>
             {recommendation.top.last_finish_note ? (
@@ -125,7 +137,7 @@ function RecommendModal({
                   : '未设置估时'}
               </p>
               <div className="recommend-card__chips">
-                <span className="state-pill state-pill--outline">
+                <span className={getPillClass(task.state)}>
                   {TASK_STATE_COPY[task.state]}
                 </span>
                 {task.last_finish_note ? (

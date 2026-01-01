@@ -40,6 +40,19 @@ function getWarmSubtitle(task: Task) {
   return '上次进行：尚无记录'
 }
 
+function getStatePillClass(state: Task['state']) {
+  if (state === 'warm') {
+    return 'state-pill state-pill--warm'
+  }
+  return 'state-pill'
+}
+
+function getTaskCardClass(state: Task['state']) {
+  if (state === 'cold') return 'task-card task-card--cold'
+  if (state === 'warm') return 'task-card task-card--warm'
+  return 'task-card'
+}
+
 function TaskList({
   tasks,
   isLoading,
@@ -77,7 +90,7 @@ function TaskList({
       {activeTasks.map((task) => {
         const progressInfo = getProgressInfo(task)
         return (
-          <li key={task.id} className="task-card">
+          <li key={task.id} className={getTaskCardClass(task.state)}>
             <div className="task-card__content">
               <div className="task-card__head">
                 <Link to={`/task/${task.id}`} className="task-card__title-button">
@@ -106,7 +119,9 @@ function TaskList({
                 </div>
               </div>
               <p className="task-card__meta">
-                <span className="state-pill">{TASK_STATE_COPY[task.state]}</span>
+                <span className={getStatePillClass(task.state)}>
+                  {TASK_STATE_COPY[task.state]}
+                </span>
                 <span>{progressInfo.text}</span>
               </p>
               {progressInfo.type === 'estimate' ? (

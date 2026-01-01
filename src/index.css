@@ -300,6 +300,14 @@ body {
   gap: 0.5rem;
 }
 
+.task-card--cold {
+  background: #eef5ff;
+}
+
+.task-card--warm {
+  background: #fff7ec;
+}
+
 .task-card__content {
   flex: 1;
 }
@@ -377,6 +385,11 @@ body {
   padding: 0.1rem 0.6rem;
   font-size: 0.75rem;
   font-weight: 600;
+}
+
+.state-pill--warm {
+  background: #fff4d6;
+  color: #b45309;
 }
 
 .task-list__empty {
@@ -534,6 +547,11 @@ body {
 .state-pill--outline {
   background: transparent;
   border: 1px solid rgba(15, 23, 42, 0.2);
+}
+
+.state-pill--warm.state-pill--outline {
+  border-color: rgba(249, 115, 22, 0.6);
+  color: #b45309;
 }
 
 .note-pill {
