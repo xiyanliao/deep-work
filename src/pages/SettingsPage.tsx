@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import DoneSection from '../components/DoneSection'
-import { listTasks, restoreTask } from '../data/db'
+import { deleteTask, listTasks, restoreTask } from '../data/db'
 import type { Task } from '../types'
 import { useTimePreference } from '../hooks/useTimePreference'
 import { exportBackup, importBackup } from '../utils/backup'
@@ -12,6 +12,8 @@ function SettingsPage() {
   const [doneOpen, setDoneOpen] = useState(false)
   const [prefMessage, setPrefMessage] = useState<string | null>(null)
   const [prefError, setPrefError] = useState<string | null>(null)
+  const [taskMessage, setTaskMessage] = useState<string | null>(null)
+  const [taskError, setTaskError] = useState<string | null>(null)
   const [backupMessage, setBackupMessage] = useState<string | null>(null)
   const [backupError, setBackupError] = useState<string | null>(null)
 
@@ -50,6 +52,8 @@ function SettingsPage() {
     setIsCustom(false)
     setPrefError(null)
     setPrefMessage(null)
+    setTaskError(null)
+    setTaskMessage(null)
   }
 
   const handleCustomChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -87,15 +91,30 @@ function SettingsPage() {
   }
 
   const handleRestore = async (taskId: string) => {
-    setPrefError(null)
-    setPrefMessage(null)
+    setTaskError(null)
+    setTaskMessage(null)
     try {
       await restoreTask(taskId)
       const refreshed = await listTasks()
       setTasks(refreshed)
-      setPrefMessage('任务已恢复到任务池')
+      setTaskMessage('任务已恢复到任务池')
     } catch (err) {
-      setPrefError((err as Error).message)
+      setTaskError((err as Error).message)
+    }
+  }
+
+  const handleDelete = async (taskId: string) => {
+    const confirmed = window.confirm('确认删除该任务？该操作不可恢复。')
+    if (!confirmed) return
+    setTaskError(null)
+    setTaskMessage(null)
+    try {
+      await deleteTask(taskId)
+      const refreshed = await listTasks()
+      setTasks(refreshed)
+      setTaskMessage('任务已删除')
+    } catch (err) {
+      setTaskError((err as Error).message)
     }
   }
 
@@ -188,7 +207,10 @@ function SettingsPage() {
           isOpen={doneOpen}
           onToggle={() => setDoneOpen((prev) => !prev)}
           onRestore={handleRestore}
+          onDelete={handleDelete}
         />
+        {taskMessage ? <p className="hint-text">{taskMessage}</p> : null}
+        {taskError ? <p className="error-text">{taskError}</p> : null}
       </div>
 
       <div className="page-card">

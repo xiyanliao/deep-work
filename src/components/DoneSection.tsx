@@ -7,13 +7,21 @@ interface Props {
   isOpen: boolean
   onToggle: () => void
   onRestore: (taskId: string) => void
+  onDelete?: (taskId: string) => void
 }
 
 function formatMeta(task: Task) {
   return `${TASK_STATE_COPY[task.state]} · 累计 ${task.spent_minutes} min`
 }
 
-function DoneSection({ tasks, isLoading, isOpen, onToggle, onRestore }: Props) {
+function DoneSection({
+  tasks,
+  isLoading,
+  isOpen,
+  onToggle,
+  onRestore,
+  onDelete,
+}: Props) {
   const sorted = [...tasks].sort(
     (a, b) =>
       new Date(b.updated_at ?? b.created_at).getTime() -
@@ -39,13 +47,24 @@ function DoneSection({ tasks, isLoading, isOpen, onToggle, onRestore }: Props) {
                   <p className="done-card__title">{task.title || '未命名任务'}</p>
                   <p className="done-card__meta">{formatMeta(task)}</p>
                 </div>
-                <button
-                  className="ghost-button"
-                  type="button"
-                  onClick={() => onRestore(task.id)}
-                >
-                  Restore
-                </button>
+                <div className="done-card__actions">
+                  <button
+                    className="ghost-button"
+                    type="button"
+                    onClick={() => onRestore(task.id)}
+                  >
+                    Restore
+                  </button>
+                  {onDelete ? (
+                    <button
+                      className="danger-button danger-button--compact"
+                      type="button"
+                      onClick={() => onDelete(task.id)}
+                    >
+                      删除
+                    </button>
+                  ) : null}
+                </div>
               </li>
             ))}
           </ul>
