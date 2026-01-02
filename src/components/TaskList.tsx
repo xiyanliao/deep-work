@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { TASK_STATE_COPY } from '../constants/tasks'
 import type { Task } from '../types'
+import { useDurationFormat } from '../state/DurationFormatContext'
 
 interface Props {
   tasks: Task[]
@@ -12,7 +13,7 @@ interface Props {
   isStarting?: boolean
 }
 
-function getProgressInfo(task: Task) {
+function getProgressInfo(task: Task, formatMinutes: (minutes: number) => string) {
   if (typeof task.estimate_minutes === 'number' && task.estimate_minutes > 0) {
     const ratio = task.estimate_minutes
       ? task.spent_minutes / task.estimate_minutes
@@ -20,12 +21,14 @@ function getProgressInfo(task: Task) {
     return {
       type: 'estimate' as const,
       ratio,
-      text: `${task.spent_minutes}/${task.estimate_minutes} min`,
+      text: `${formatMinutes(task.spent_minutes)} / ${formatMinutes(
+        task.estimate_minutes,
+      )}`,
     }
   }
   return {
     type: 'spent' as const,
-    text: `累计 ${task.spent_minutes} min`,
+    text: `累计 ${formatMinutes(task.spent_minutes)}`,
   }
 }
 
@@ -62,6 +65,7 @@ function TaskList({
   focusingTaskId,
   isStarting,
 }: Props) {
+  const { formatMinutes } = useDurationFormat()
   const activeTasks = tasks
     .filter((task) => task.state !== 'done')
     .sort(
@@ -88,7 +92,7 @@ function TaskList({
   return (
     <ul className="task-list">
       {activeTasks.map((task) => {
-        const progressInfo = getProgressInfo(task)
+        const progressInfo = getProgressInfo(task, formatMinutes)
         return (
           <li key={task.id} className={getTaskCardClass(task.state)}>
             <div className="task-card__content">

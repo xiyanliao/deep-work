@@ -5,6 +5,7 @@ import {
   type TaskWithRemaining,
 } from '../constants/tasks'
 import type { RecommendationResult } from '../utils/recommendation'
+import { useDurationFormat } from '../state/DurationFormatContext'
 
 interface RecommendModalProps {
   isOpen: boolean
@@ -42,6 +43,7 @@ function RecommendModal({
   const [error, setError] = useState<string | null>(null)
   const [isPreferenceMode, setPreferenceMode] = useState(false)
   const [isSavingPreference, setIsSavingPreference] = useState(false)
+  const { formatMinutes } = useDurationFormat()
 
   useEffect(() => {
     if (!isOpen) return
@@ -105,7 +107,7 @@ function RecommendModal({
           </p>
           <p className="recommend-card__meta">
             {recommendation.top.remaining_minutes !== null
-              ? `预计剩余 ${recommendation.top.remaining_minutes} 分钟`
+              ? `预计剩余 ${formatMinutes(recommendation.top.remaining_minutes)}`
               : '未设置估时'}
           </p>
           <div className="recommend-card__chips">
@@ -133,7 +135,7 @@ function RecommendModal({
               <p className="recommend-card__title">{task.title || '未命名任务'}</p>
               <p className="recommend-card__meta">
                 {task.remaining_minutes !== null
-                  ? `剩余 ${task.remaining_minutes} 分钟`
+                  ? `剩余 ${formatMinutes(task.remaining_minutes)}`
                   : '未设置估时'}
               </p>
               <div className="recommend-card__chips">

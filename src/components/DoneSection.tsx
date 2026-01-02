@@ -1,5 +1,6 @@
 import { TASK_STATE_COPY } from '../constants/tasks'
 import type { Task } from '../types'
+import { useDurationFormat } from '../state/DurationFormatContext'
 
 interface Props {
   tasks: Task[]
@@ -10,10 +11,6 @@ interface Props {
   onDelete?: (taskId: string) => void
 }
 
-function formatMeta(task: Task) {
-  return `${TASK_STATE_COPY[task.state]} · 累计 ${task.spent_minutes} min`
-}
-
 function DoneSection({
   tasks,
   isLoading,
@@ -22,6 +19,7 @@ function DoneSection({
   onRestore,
   onDelete,
 }: Props) {
+  const { formatMinutes } = useDurationFormat()
   const sorted = [...tasks].sort(
     (a, b) =>
       new Date(b.updated_at ?? b.created_at).getTime() -
@@ -45,7 +43,9 @@ function DoneSection({
               <li key={task.id} className="done-card">
                 <div className="done-card__content">
                   <p className="done-card__title">{task.title || '未命名任务'}</p>
-                  <p className="done-card__meta">{formatMeta(task)}</p>
+                  <p className="done-card__meta">
+                    {`${TASK_STATE_COPY[task.state]} · 累计 ${formatMinutes(task.spent_minutes)}`}
+                  </p>
                 </div>
                 <div className="done-card__actions">
                   <button

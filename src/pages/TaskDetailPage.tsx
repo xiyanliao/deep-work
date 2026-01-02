@@ -20,6 +20,7 @@ import {
   upsertTask,
 } from '../data/db'
 import type { Task } from '../types'
+import { useDurationFormat } from '../state/DurationFormatContext'
 
 function TaskDetailPage() {
   const { taskId } = useParams<{ taskId: string }>()
@@ -34,6 +35,7 @@ function TaskDetailPage() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const { formatMinutes } = useDurationFormat()
 
   const warmSubtitle = useMemo(() => {
     if (!task) return null
@@ -56,14 +58,16 @@ function TaskDetailPage() {
       return {
         type: 'estimate' as const,
         ratio,
-        text: `${task.spent_minutes}/${task.estimate_minutes} min`,
+        text: `${formatMinutes(task.spent_minutes)} / ${formatMinutes(
+          task.estimate_minutes,
+        )}`,
       }
     }
     return {
       type: 'spent' as const,
-      text: `累计 ${task.spent_minutes} 分钟`,
+      text: `累计 ${formatMinutes(task.spent_minutes)}`,
     }
-  }, [task])
+  }, [task, formatMinutes])
 
   useEffect(() => {
     const load = async () => {
@@ -208,8 +212,8 @@ function TaskDetailPage() {
 
   const estimateDisplay = useMemo(() => {
     if (estimate === null) return '未设置'
-    return `${estimate} 分钟`
-  }, [estimate])
+    return formatMinutes(estimate)
+  }, [estimate, formatMinutes])
 
   const stateLabel = task ? TASK_STATE_COPY[task.state] : ''
 

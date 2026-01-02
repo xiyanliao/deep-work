@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
 import DoneSection from '../components/DoneSection'
 import { deleteTask, listTasks, restoreTask } from '../data/db'
-import type { Task } from '../types'
+import type { DurationFormat, Task } from '../types'
 import { useTimePreference } from '../hooks/useTimePreference'
 import { exportBackup, importBackup } from '../utils/backup'
 import { ESTIMATE_PRESETS } from '../constants/tasks'
+import { useDurationFormat } from '../state/DurationFormatContext'
 
 function SettingsPage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -12,6 +13,8 @@ function SettingsPage() {
   const [doneOpen, setDoneOpen] = useState(false)
   const [prefMessage, setPrefMessage] = useState<string | null>(null)
   const [prefError, setPrefError] = useState<string | null>(null)
+  const [formatMessage, setFormatMessage] = useState<string | null>(null)
+  const [formatError, setFormatError] = useState<string | null>(null)
   const [taskMessage, setTaskMessage] = useState<string | null>(null)
   const [taskError, setTaskError] = useState<string | null>(null)
   const [backupMessage, setBackupMessage] = useState<string | null>(null)
@@ -21,6 +24,7 @@ function SettingsPage() {
   const [selectedMinutes, setSelectedMinutes] = useState(timePreference)
   const [isCustom, setIsCustom] = useState(false)
   const [customValue, setCustomValue] = useState(String(customMinutes))
+  const { format, setFormatOption, formatMinutes } = useDurationFormat()
 
   useEffect(() => {
     const load = async () => {
@@ -74,6 +78,8 @@ function SettingsPage() {
   const handleSavePreference = async () => {
     setPrefMessage(null)
     setPrefError(null)
+    setFormatMessage(null)
+    setFormatError(null)
     if (
       !Number.isFinite(pendingMinutes) ||
       pendingMinutes < 1 ||
@@ -87,6 +93,18 @@ function SettingsPage() {
       setPrefMessage('时间偏好已更新')
     } catch (err) {
       setPrefError((err as Error).message)
+    }
+  }
+
+  const handleFormatSelect = async (nextFormat: DurationFormat) => {
+    if (nextFormat === format) return
+    setFormatError(null)
+    setFormatMessage(null)
+    try {
+      await setFormatOption(nextFormat)
+      setFormatMessage('时间展示方式已更新')
+    } catch (err) {
+      setFormatError((err as Error).message)
     }
   }
 
@@ -197,6 +215,29 @@ function SettingsPage() {
         </button>
         {prefMessage ? <p className="hint-text">{prefMessage}</p> : null}
         {prefError ? <p className="error-text">{prefError}</p> : null}
+      </div>
+
+      <div className="page-card">
+        <h2>时间显示格式</h2>
+        <p>控制任务、统计中用时的展示方式。当前示例：{formatMinutes(80)}</p>
+        <div className="estimate-options">
+          <button
+            type="button"
+            className={format === 'minutes' ? 'chip-button is-active' : 'chip-button'}
+            onClick={() => handleFormatSelect('minutes')}
+          >
+            80min（仅分钟）
+          </button>
+          <button
+            type="button"
+            className={format === 'hm' ? 'chip-button is-active' : 'chip-button'}
+            onClick={() => handleFormatSelect('hm')}
+          >
+            1h20m（小时+分钟）
+          </button>
+        </div>
+        {formatMessage ? <p className="hint-text">{formatMessage}</p> : null}
+        {formatError ? <p className="error-text">{formatError}</p> : null}
       </div>
 
       <div className="page-card">

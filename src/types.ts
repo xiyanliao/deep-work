@@ -1,5 +1,7 @@
 export type TaskState = 'cold' | 'focusing' | 'warm' | 'done'
 
+export type DurationFormat = 'minutes' | 'hm'
+
 export type TimestampString = string
 
 export interface Task {
@@ -24,11 +26,15 @@ export interface Session {
   note_snapshot: string | null
 }
 
-export type SettingKey = 'timePreferenceMinutes' | 'lastCustomMinutes'
+export type SettingKey =
+  | 'timePreferenceMinutes'
+  | 'lastCustomMinutes'
+  | 'durationFormat'
 
 export interface SettingValueMap {
   timePreferenceMinutes: number
   lastCustomMinutes: number
+  durationFormat: DurationFormat
 }
 
 export interface SettingRecord<K extends SettingKey = SettingKey> {

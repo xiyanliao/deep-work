@@ -5,13 +5,16 @@ import './index.css'
 import './pwa'
 import App from './App.tsx'
 import { FocusSessionProvider } from './state/FocusSessionContext.tsx'
+import { DurationFormatProvider } from './state/DurationFormatContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <FocusSessionProvider>
-        <App />
-      </FocusSessionProvider>
+      <DurationFormatProvider>
+        <FocusSessionProvider>
+          <App />
+        </FocusSessionProvider>
+      </DurationFormatProvider>
     </BrowserRouter>
   </StrictMode>,
 )

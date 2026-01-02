@@ -9,6 +9,7 @@ import { useFocusSession } from '../state/FocusSessionContext'
 import { useTimePreference } from '../hooks/useTimePreference'
 import { recommendTasks } from '../utils/recommendation'
 import { useTodayDeepMinutes } from '../hooks/useTodayDeepMinutes'
+import { useDurationFormat } from '../state/DurationFormatContext'
 
 function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -26,6 +27,7 @@ function HomePage() {
     error: todayError,
     refresh: refreshTodayMinutes,
   } = useTodayDeepMinutes()
+  const { formatMinutes } = useDurationFormat()
 
   const refreshTasks = useCallback(async () => {
     setIsLoading(true)
@@ -83,7 +85,7 @@ function HomePage() {
       <h1>Deep Work · Journalist Mode</h1>
       <p className="page-lead">
         今日累计深度：
-        {isTodayLoading ? '计算中…' : `${todayMinutes} 分钟`}
+        {isTodayLoading ? '计算中…' : formatMinutes(todayMinutes)}
       </p>
       {todayError ? <p className="error-text">统计失败：{todayError}</p> : null}
 
@@ -94,7 +96,7 @@ function HomePage() {
             <p>
               当前推荐：<strong>{recommendation.top.title || '未命名任务'}</strong>
               {recommendation.top.remaining_minutes !== null
-                ? ` · 预计剩余 ${recommendation.top.remaining_minutes} 分钟`
+                ? ` · 预计剩余 ${formatMinutes(recommendation.top.remaining_minutes)}`
                 : ' · 未设置 estimate'}
             </p>
             {recommendation.message ? (
