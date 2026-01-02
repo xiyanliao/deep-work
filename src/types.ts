@@ -1,5 +1,7 @@
 export type TaskState = 'cold' | 'focusing' | 'warm' | 'done'
 
+export type TaskCategory = 'work' | 'leisure'
+
 export type DurationFormat = 'minutes' | 'hm'
 
 export type TimestampString = string
@@ -10,6 +12,7 @@ export interface Task {
   estimate_minutes: number | null
   spent_minutes: number
   state: TaskState
+  category: TaskCategory
   last_finish_note: string | null
   last_session_end_at: TimestampString | null
   session_count: number

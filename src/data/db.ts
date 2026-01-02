@@ -5,12 +5,15 @@ import type {
   SettingRecord,
   SettingValueMap,
   Task,
+  TaskCategory,
 } from '../types'
+
+type StoredTask = Omit<Task, 'category'> & { category?: TaskCategory }
 
 interface DeepWorkDBSchema extends DBSchema {
   tasks: {
     key: string
-    value: Task
+    value: StoredTask
     indexes: {
       'by-state': Task['state']
     }
@@ -89,43 +92,53 @@ const defaultTaskFields = (): Pick<
 export interface TaskDraft {
   title: string
   estimate_minutes?: number | null
+  category?: TaskCategory
+}
+
+function normalizeTask(task: StoredTask | undefined | null): Task | null {
+  if (!task) return null
+  const category = task.category ?? 'work'
+  return { ...task, category }
 }
 
 export async function createTask(draft: TaskDraft) {
   const db = await getDB()
   const id = crypto.randomUUID()
   const title = draft.title.trim() || '未命名任务'
-  const task: Task = {
+  const task: StoredTask = {
     id,
     title,
     estimate_minutes:
       typeof draft.estimate_minutes === 'number'
         ? draft.estimate_minutes
         : null,
+    category: draft.category ?? 'work',
     ...defaultTaskFields(),
   }
   await db.add('tasks', task)
-  return task
+  return normalizeTask(task)!
 }
 
 export async function listTasks() {
   const db = await getDB()
-  return db.getAll('tasks')
+  const records = await db.getAll('tasks')
+  return records.map((task) => normalizeTask(task)!)
 }
 
 export async function getTask(id: string) {
   const db = await getDB()
-  return db.get('tasks', id)
+  return normalizeTask(await db.get('tasks', id)) ?? undefined
 }
 
 export async function upsertTask(task: Task) {
   const db = await getDB()
-  const mergedTask: Task = {
+  const mergedTask: StoredTask = {
     ...task,
+    category: task.category ?? 'work',
     updated_at: nowISO(),
   }
   await db.put('tasks', mergedTask)
-  return mergedTask
+  return normalizeTask(mergedTask)!
 }
 
 export async function deleteTask(taskId: string) {
@@ -133,7 +146,7 @@ export async function deleteTask(taskId: string) {
   await db.delete('tasks', taskId)
 }
 
-const ensureTaskExists = (task: Task | undefined): Task => {
+const ensureTaskExists = (task: Task | null | undefined): Task => {
   if (!task) {
     throw new Error('Task not found')
   }
@@ -142,7 +155,7 @@ const ensureTaskExists = (task: Task | undefined): Task => {
 
 export async function markDone(taskId: string) {
   const db = await getDB()
-  const task = ensureTaskExists(await db.get('tasks', taskId))
+  const task = ensureTaskExists(normalizeTask(await db.get('tasks', taskId)))
   if (task.state === 'done') {
     return task
   }
@@ -157,7 +170,7 @@ export async function markDone(taskId: string) {
 
 export async function restoreTask(taskId: string) {
   const db = await getDB()
-  const task = ensureTaskExists(await db.get('tasks', taskId))
+  const task = ensureTaskExists(normalizeTask(await db.get('tasks', taskId)))
   if (task.state !== 'done') {
     return task
   }
@@ -173,7 +186,7 @@ export async function restoreTask(taskId: string) {
 
 export async function updateTaskState(taskId: string, state: Task['state']) {
   const db = await getDB()
-  const task = ensureTaskExists(await db.get('tasks', taskId))
+  const task = ensureTaskExists(normalizeTask(await db.get('tasks', taskId)))
   const nextTask: Task = {
     ...task,
     state,
@@ -212,7 +225,7 @@ export async function getFocusingTask() {
   const store = tx.store
   const index = store.index('by-state')
   const cursor = await index.openCursor('focusing')
-  return cursor?.value ?? null
+  return normalizeTask(cursor?.value) ?? null
 }
 
 export async function getSetting<K extends SettingKey>(key: K) {
@@ -248,7 +261,7 @@ export async function finishTask({
   startAt,
 }: FinishTaskOptions & { startAt: string }) {
   const db = await getDB()
-  const task = ensureTaskExists(await db.get('tasks', taskId))
+  const task = ensureTaskExists(normalizeTask(await db.get('tasks', taskId)))
   if (task.state !== 'focusing') {
     throw new Error('当前任务不在 focusing 状态')
   }

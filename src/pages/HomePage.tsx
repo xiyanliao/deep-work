@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import NewTaskForm from '../components/NewTaskForm'
 import RecommendModal from '../components/RecommendModal'
@@ -11,6 +11,13 @@ import { recommendTasks } from '../utils/recommendation'
 import { useTodayDeepMinutes } from '../hooks/useTodayDeepMinutes'
 import { useDurationFormat } from '../state/DurationFormatContext'
 
+const CATEGORY_TABS = [
+  { key: 'work', label: '任务' },
+  { key: 'leisure', label: '娱乐' },
+] as const
+
+type CategoryKey = (typeof CATEGORY_TABS)[number]['key']
+
 function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -18,6 +25,8 @@ function HomePage() {
   const [isRecommendOpen, setRecommendOpen] = useState(false)
   const [recommendation, setRecommendation] =
     useState<ReturnType<typeof recommendTasks> | null>(null)
+  const [creationTab, setCreationTab] = useState<CategoryKey>('work')
+  const [listTab, setListTab] = useState<CategoryKey>('work')
   const navigate = useNavigate()
   const { startFocus, session, focusingTask, isBusy } = useFocusSession()
   const { timePreference, customMinutes, savePreference } = useTimePreference()
@@ -28,6 +37,20 @@ function HomePage() {
     refresh: refreshTodayMinutes,
   } = useTodayDeepMinutes()
   const { formatMinutes } = useDurationFormat()
+  const filteredByCategory = useMemo(() => {
+    return {
+      work: tasks.filter((task) => (task.category ?? 'work') === 'work'),
+      leisure: tasks.filter((task) => task.category === 'leisure'),
+    }
+  }, [tasks])
+
+  const categoryDescriptions: Record<CategoryKey, string> = {
+    work: '当前所有冷/暖任务，会在此处显示状态与进度。',
+    leisure: '当前所有正在进行的娱乐安排，保持轻松的推进节奏。',
+  }
+
+  const getTabIndex = (tab: CategoryKey) =>
+    CATEGORY_TABS.findIndex((item) => item.key === tab)
 
   const refreshTasks = useCallback(async () => {
     setIsLoading(true)
@@ -116,24 +139,85 @@ function HomePage() {
         </button>
       </div>
 
-      <div className="page-card">
-        <h2>创建新任务</h2>
-        <NewTaskForm onCreated={refreshTasks} />
+      <div className="slider-group">
+        <div className="slider-tabs" role="tablist">
+          {CATEGORY_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              className={creationTab === tab.key ? 'chip-button is-active' : 'chip-button'}
+              onClick={() => setCreationTab(tab.key)}
+            >
+              创建新{tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="slider-viewport">
+          <div
+            className="slider-track"
+            style={{ transform: `translateX(-${getTabIndex(creationTab) * 100}%)` }}
+          >
+            {CATEGORY_TABS.map((tab) => (
+              <div className="slider-pane" key={tab.key}>
+                <div className="page-card">
+                  <h2>创建新{tab.label}</h2>
+                  <NewTaskForm
+                    category={tab.key}
+                    onCreated={refreshTasks}
+                    titleLabel={`${tab.label}标题`}
+                    submitLabel={`添加${tab.label}`}
+                    placeholder={
+                      tab.key === 'work'
+                        ? '例如：采访大纲·整理前半段'
+                        : '例如：Switch 健身 · 健身环 20 分钟'
+                    }
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="page-card">
-        <h2>未归档任务列表</h2>
-        <p>当前所有冷/暖任务，会在此处显示状态与进度。</p>
-        {error ? <p className="error-text">读取失败：{error}</p> : null}
-        <TaskList
-          tasks={tasks}
-          isLoading={isLoading}
-          onRefresh={refreshTasks}
-          onMarkDone={handleMarkDone}
-          onStart={handleStart}
-          focusingTaskId={focusingId}
-          isStarting={isBusy}
-        />
+      <div className="slider-group">
+        <div className="slider-tabs" role="tablist">
+          {CATEGORY_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              className={listTab === tab.key ? 'chip-button is-active' : 'chip-button'}
+              onClick={() => setListTab(tab.key)}
+            >
+              未归档{tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="slider-viewport">
+          <div
+            className="slider-track"
+            style={{ transform: `translateX(-${getTabIndex(listTab) * 100}%)` }}
+          >
+            {CATEGORY_TABS.map((tab) => (
+              <div className="slider-pane" key={tab.key}>
+                <div className="page-card">
+                  <h2>未归档{tab.label}列表</h2>
+                  <p>{categoryDescriptions[tab.key]}</p>
+                  {error ? <p className="error-text">读取失败：{error}</p> : null}
+                  <TaskList
+                    tasks={filteredByCategory[tab.key]}
+                    isLoading={isLoading}
+                    onRefresh={refreshTasks}
+                    onMarkDone={handleMarkDone}
+                    onStart={handleStart}
+                    focusingTaskId={focusingId}
+                    isStarting={isBusy}
+                    emptyHint={`还没有未归档${tab.label}，创建一个来开启深度。`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       <RecommendModal
         isOpen={isRecommendOpen}

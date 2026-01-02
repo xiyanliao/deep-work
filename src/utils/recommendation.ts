@@ -47,7 +47,7 @@ export function recommendTasks(
   timeWindowMinutes: number,
 ): RecommendationResult {
   const candidates = tasks
-    .filter((task) => task.state !== 'done')
+    .filter((task) => task.state !== 'done' && task.category !== 'leisure')
     .map(computeRemaining)
   const matches = candidates.filter((task) => {
     if (task.remaining_minutes === null) {

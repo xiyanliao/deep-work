@@ -11,6 +11,7 @@ interface Props {
   onStart?: (taskId: string) => void
   focusingTaskId?: string | null
   isStarting?: boolean
+  emptyHint?: string
 }
 
 function getProgressInfo(task: Task, formatMinutes: (minutes: number) => string) {
@@ -64,6 +65,7 @@ function TaskList({
   onStart,
   focusingTaskId,
   isStarting,
+  emptyHint,
 }: Props) {
   const { formatMinutes } = useDurationFormat()
   const activeTasks = tasks
@@ -81,7 +83,7 @@ function TaskList({
   if (!activeTasks.length) {
     return (
       <div className="task-list__empty">
-        <p>还没有未归档任务，创建一个来开启深度。</p>
+        <p>{emptyHint ?? '还没有未归档任务，创建一个来开启深度。'}</p>
         <button className="link-button" type="button" onClick={onRefresh}>
           重新读取
         </button>

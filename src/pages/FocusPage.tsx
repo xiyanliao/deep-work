@@ -64,8 +64,8 @@ function FocusPage() {
     return (
       <section className="page focus-page">
         <p className="page-kicker">Focus</p>
-        <h1>暂无进行中的深度任务</h1>
-        <p className="page-lead">请在 Home 页 Start 一个任务后再回来。</p>
+        <h1>暂无进行中的深度行动</h1>
+        <p className="page-lead">请在 Home 页 Start 一个行动后再回来。</p>
         <Link className="primary-button" to="/">
           返回 Home
         </Link>

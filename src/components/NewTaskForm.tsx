@@ -2,12 +2,23 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { createTask } from '../data/db'
 import { useTimePreference } from '../hooks/useTimePreference'
 import { ESTIMATE_PRESETS } from '../constants/tasks'
+import type { Task } from '../types'
 
 interface Props {
+  category: Task['category']
   onCreated?: () => void
+  titleLabel?: string
+  placeholder?: string
+  submitLabel?: string
 }
 
-function NewTaskForm({ onCreated }: Props) {
+function NewTaskForm({
+  category,
+  onCreated,
+  titleLabel,
+  placeholder,
+  submitLabel,
+}: Props) {
   const [title, setTitle] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -18,6 +29,15 @@ function NewTaskForm({ onCreated }: Props) {
   const [customValue, setCustomValue] = useState('')
   const [preferenceError, setPreferenceError] = useState<string | null>(null)
   const { timePreference, customMinutes } = useTimePreference()
+  const effectiveTitleLabel =
+    titleLabel ?? (category === 'leisure' ? '娱乐标题' : '任务标题')
+  const effectivePlaceholder =
+    placeholder ??
+    (category === 'leisure'
+      ? '例如：Switch 健身 · 健身环 20 分钟'
+      : '例如：采访大纲·整理前半段')
+  const effectiveSubmitLabel =
+    submitLabel ?? (category === 'leisure' ? '添加娱乐' : '添加任务')
 
   useEffect(() => {
     if (!isPreferenceOpen) return
@@ -82,6 +102,7 @@ function NewTaskForm({ onCreated }: Props) {
       await createTask({
         title: trimmed,
         estimate_minutes: isPreferenceOpen ? pendingEstimate : null,
+        category,
       })
       setTitle('')
       if (isPreferenceOpen) {
@@ -102,10 +123,10 @@ function NewTaskForm({ onCreated }: Props) {
   return (
     <form className="stacked-form" onSubmit={handleSubmit}>
       <label className="form-field">
-        <span>任务标题</span>
+        <span>{effectiveTitleLabel}</span>
         <input
           type="text"
-          placeholder="例如：采访大纲·整理前半段"
+          placeholder={effectivePlaceholder}
           value={title}
           onChange={(event) => {
             setTitle(event.target.value)
@@ -165,7 +186,7 @@ function NewTaskForm({ onCreated }: Props) {
         </div>
       ) : null}
       <button className="primary-button" type="submit" disabled={isSubmitting}>
-        {isSubmitting ? '创建中…' : '添加任务'}
+        {isSubmitting ? '创建中…' : effectiveSubmitLabel}
       </button>
       {error ? <p className="error-text">{error}</p> : null}
       {success ? <p className="success-text">{success}</p> : null}

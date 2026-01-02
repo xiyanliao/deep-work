@@ -400,6 +400,30 @@ body {
   text-align: center;
 }
 
+.slider-group {
+  margin-top: 1.5rem;
+}
+
+.slider-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.slider-viewport {
+  overflow: hidden;
+}
+
+.slider-track {
+  display: flex;
+  transition: transform 0.35s ease;
+}
+
+.slider-pane {
+  flex: 0 0 100%;
+}
+
 .estimate-options {
   display: flex;
   flex-wrap: wrap;
