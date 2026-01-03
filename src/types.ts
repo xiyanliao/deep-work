@@ -27,6 +27,7 @@ export interface Session {
   end_at: TimestampString
   minutes: number
   note_snapshot: string | null
+  category: TaskCategory
 }
 
 export type SettingKey =

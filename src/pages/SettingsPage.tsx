@@ -6,6 +6,8 @@ import { useTimePreference } from '../hooks/useTimePreference'
 import { exportBackup, importBackup } from '../utils/backup'
 import { ESTIMATE_PRESETS } from '../constants/tasks'
 import { useDurationFormat } from '../state/DurationFormatContext'
+import { useTotalMinutes } from '../hooks/useTotalMinutes'
+import { useTodayDeepMinutes } from '../hooks/useTodayDeepMinutes'
 
 function SettingsPage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -25,6 +27,18 @@ function SettingsPage() {
   const [isCustom, setIsCustom] = useState(false)
   const [customValue, setCustomValue] = useState(String(customMinutes))
   const { format, setFormatOption, formatMinutes } = useDurationFormat()
+  const { minutes: todayWork } = useTodayDeepMinutes('work')
+  const { minutes: todayLeisure } = useTodayDeepMinutes('leisure')
+  const {
+    minutes: totalWork,
+    isLoading: isTotalWorkLoading,
+    error: totalWorkError,
+  } = useTotalMinutes('work')
+  const {
+    minutes: totalLeisure,
+    isLoading: isTotalLeisureLoading,
+    error: totalLeisureError,
+  } = useTotalMinutes('leisure')
 
   useEffect(() => {
     const load = async () => {
@@ -238,6 +252,36 @@ function SettingsPage() {
         </div>
         {formatMessage ? <p className="hint-text">{formatMessage}</p> : null}
         {formatError ? <p className="error-text">{formatError}</p> : null}
+      </div>
+
+      <div className="page-card">
+        <h2>深度时间统计</h2>
+        <ul className="stats-list">
+          <li>
+            <strong>今日任务累计：</strong>
+            {formatMinutes(todayWork)}
+          </li>
+          <li>
+            <strong>今日娱乐累计：</strong>
+            {formatMinutes(todayLeisure)}
+          </li>
+          <li>
+            <strong>总任务深度：</strong>
+            {isTotalWorkLoading
+              ? '统计中…'
+              : totalWorkError
+              ? `失败：${totalWorkError}`
+              : formatMinutes(totalWork)}
+          </li>
+          <li>
+            <strong>总娱乐深度：</strong>
+            {isTotalLeisureLoading
+              ? '统计中…'
+              : totalLeisureError
+              ? `失败：${totalLeisureError}`
+              : formatMinutes(totalLeisure)}
+          </li>
+        </ul>
       </div>
 
       <div className="page-card">

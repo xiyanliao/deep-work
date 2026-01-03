@@ -284,6 +284,7 @@ export async function finishTask({
     end_at: now,
     minutes: safeMinutes,
     note_snapshot: trimmedNote ?? null,
+    category: task.category ?? 'work',
   })
   return nextTask
 }

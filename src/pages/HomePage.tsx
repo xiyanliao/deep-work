@@ -35,7 +35,7 @@ function HomePage() {
     isLoading: isTodayLoading,
     error: todayError,
     refresh: refreshTodayMinutes,
-  } = useTodayDeepMinutes()
+  } = useTodayDeepMinutes('work')
   const { formatMinutes } = useDurationFormat()
   const filteredByCategory = useMemo(() => {
     return {

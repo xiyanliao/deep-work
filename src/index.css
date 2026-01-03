@@ -424,6 +424,16 @@ body {
   flex: 0 0 100%;
 }
 
+.stats-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: #1d2939;
+}
+
 .estimate-options {
   display: flex;
   flex-wrap: wrap;

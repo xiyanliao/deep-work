@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { listSessionsByRange } from '../data/db'
-import { getTodayRange } from '../utils/time'
+import { getDB } from '../data/db'
 import type { TaskCategory } from '../types'
 
-export function useTodayDeepMinutes(categoryFilter?: TaskCategory) {
+export function useTotalMinutes(category?: TaskCategory) {
   const [minutes, setMinutes] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -12,10 +11,10 @@ export function useTodayDeepMinutes(categoryFilter?: TaskCategory) {
     setIsLoading(true)
     setError(null)
     try {
-      const { start, end } = getTodayRange()
-      const sessions = await listSessionsByRange(start, end)
-      const filtered = categoryFilter
-        ? sessions.filter((session) => session.category === categoryFilter)
+      const db = await getDB()
+      const sessions = await db.getAll('sessions')
+      const filtered = category
+        ? sessions.filter((session) => session.category === category)
         : sessions
       const total = filtered.reduce((sum, session) => sum + session.minutes, 0)
       setMinutes(total)
@@ -24,7 +23,7 @@ export function useTodayDeepMinutes(categoryFilter?: TaskCategory) {
     } finally {
       setIsLoading(false)
     }
-  }, [categoryFilter])
+  }, [category])
 
   useEffect(() => {
     refresh()
